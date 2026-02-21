@@ -1,0 +1,13 @@
+﻿version: '3.8'
+services:
+  rag-quality:
+    build: .
+    container_name: toolkit-rag-quality
+    volumes:
+      - ./evaluations:/app/evaluations
+      - ./reports:/app/reports
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    command: tail -f /dev/null
+
+
