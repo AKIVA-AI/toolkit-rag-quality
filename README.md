@@ -1,16 +1,14 @@
-﻿# Toolkit RAG Quality Toolkit (Enterprise Tool)
+# Toolkit RAG Quality Toolkit
 
-Toolkit RAG Quality Toolkit is a deterministic evaluation and QA utility for retrieval systems (RAG) without requiring
-model calls.
+A deterministic evaluation and QA utility for retrieval systems (RAG) without requiring model calls.
 
 It focuses on enterprise-friendly metrics you can run in CI:
 
-- retrieval metrics: recall@k, precision@k, MRR, hit-rate@k
-- corpus QA: near-exact duplicate detection and overlap between corpora (leakage risk)
-- reproducible reports: JSON outputs suitable for gating
+- **Retrieval metrics**: recall@k, precision@k, MRR, hit-rate@k
+- **Corpus QA**: near-exact duplicate detection and overlap between corpora (leakage risk)
+- **Reproducible reports**: JSON outputs suitable for gating
 
-This is intentionally lightweight and safe to open source. A Pro version can add dashboards, policy enforcement,
-multi-tenant governance, and hosted storage for corpora and eval runs.
+This is intentionally lightweight and safe to open source. A Pro version can add dashboards, policy enforcement, multi-tenant governance, and hosted storage for corpora and eval runs.
 
 ## Install (dev)
 
@@ -59,8 +57,16 @@ Corpora JSONL (one per line):
 {"id":"doc-1","text":"..."}
 ```
 
+## CLI Commands
+
+- `score` - Score retrieval results against queries
+- `overlap` - Check overlap/leakage between corpora
+- `compare` - Compare reports for CI gating
+
 ## CI exit codes
 
 - `compare`: `0` = passed, `4` = failed budgets
 
+## License
 
+MIT License - see LICENSE file for details.
