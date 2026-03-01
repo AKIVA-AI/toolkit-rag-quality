@@ -1,33 +1,36 @@
-﻿# RAG Quality Toolkit - Quick Start
+# RAG Quality Toolkit - Quick Start
 
-## ðŸš€ Installation
+## Installation
 
 ```bash
 pip install -e ".[dev]"
 toolkit-rag --version
 ```
 
-## ðŸ“ Basic Usage
+## Basic Usage
 
 ```bash
-# Evaluate RAG system
-toolkit-rag evaluate --config eval-config.json --out report.json
+# Score retrieval results
+toolkit-rag score --queries queries.jsonl --retrieved retrieved.jsonl --k 5 --out report.json
+
+# Check overlap/leakage between two corpora
+toolkit-rag overlap --a corpus_a.jsonl --b corpus_b.jsonl --out overlap.json
+
+# Compare candidate report to baseline (CI gating)
+toolkit-rag compare --baseline baseline.json --candidate report.json --max-recall-regression-pct 2.0
+
+# Validate a report file
+toolkit-rag validate-report --report report.json
 ```
 
-## ðŸ³ Docker Usage
+## Docker Usage
 
 ```bash
 docker-compose up -d
-docker-compose exec rag-quality toolkit-rag evaluate --config /app/eval-config.json
+docker-compose exec rag-quality toolkit-rag score --queries /app/evaluations/queries.jsonl --retrieved /app/evaluations/retrieved.jsonl --out /app/reports/report.json
 ```
 
-## ðŸ“š Next Steps
+## Next Steps
 
 - Read [README.md](README.md)
 - Check [DEPLOYMENT.md](DEPLOYMENT.md)
-
----
-
-**Ready to evaluate RAG quality!** ðŸš€
-
-

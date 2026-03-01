@@ -141,7 +141,7 @@ def _cmd_compare(args: argparse.Namespace) -> int:
         if result["passed"]:
             logger.info("Comparison passed")
         else:
-            logger.warning("Comparison failed")
+            logger.error("Comparison failed: recall regression exceeds budget")
             
     except Exception as e:
         logger.error(f"Failed to compare reports: {e}")
@@ -172,7 +172,7 @@ def _cmd_validate_report(args: argparse.Namespace) -> int:
     if ok:
         logger.info("Report validation passed")
     else:
-        logger.warning("Report validation failed")
+        logger.error("Report validation failed: missing 'summary' dict or 'per_query' list")
     
     payload = {"ok": ok, "schema": "toolkit_rag_report", "schema_version": 1}
     print(json.dumps(payload, indent=2, sort_keys=True))
@@ -204,20 +204,27 @@ def build_parser() -> argparse.ArgumentParser:
     overlap = sub.add_parser("overlap", help="Compute overlap/leakage between two corpora.")
     overlap.add_argument("--a", required=True, help="Corpus A JSONL (id, text)")
     overlap.add_argument("--b", required=True, help="Corpus B JSONL (id, text)")
-    overlap.add_argument("--max-records", default="50000", help="Max records to process (default: 50000)")
+    overlap.add_argument(
+        "--max-records", default="50000", help="Max records to process (default: 50000)",
+    )
     overlap.add_argument("--out", default="", help="Optional output report JSON path")
     overlap.set_defaults(func=_cmd_overlap)
 
     compare = sub.add_parser("compare", help="Compare candidate report against baseline report.")
     compare.add_argument("--baseline", required=True, help="Baseline report JSON file path")
     compare.add_argument("--candidate", required=True, help="Candidate report JSON file path")
-    compare.add_argument("--max-recall-regression-pct", default="2.0", help="Max recall regression %% (default: 2.0)")
+    compare.add_argument(
+        "--max-recall-regression-pct", default="2.0",
+        help="Max recall regression %% (default: 2.0)",
+    )
     compare.set_defaults(func=_cmd_compare)
 
     validate_report = sub.add_parser(
         "validate-report", help="Validate a RAG report JSON has the expected shape."
     )
-    validate_report.add_argument("--report", required=True, help="Report JSON file path to validate")
+    validate_report.add_argument(
+        "--report", required=True, help="Report JSON file path to validate",
+    )
     validate_report.set_defaults(func=_cmd_validate_report)
 
     return p

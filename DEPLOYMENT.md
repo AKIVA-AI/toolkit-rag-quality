@@ -1,13 +1,12 @@
-﻿# RAG Quality Toolkit - Deployment Guide
+# RAG Quality Toolkit - Deployment Guide
 
-## ðŸš€ Quick Start
+## Quick Start
 
 ### Docker Deployment (Recommended)
 
 ```bash
-cd rag-quality-toolkit
 docker-compose up -d
-docker-compose exec rag-quality toolkit-rag evaluate --config eval-config.json
+docker-compose exec rag-quality toolkit-rag score --queries /app/evaluations/queries.jsonl --retrieved /app/evaluations/retrieved.jsonl --out /app/reports/report.json
 ```
 
 ### Local Installation
@@ -18,22 +17,24 @@ toolkit-rag --version
 pytest
 ```
 
-## ðŸ”§ Configuration
+## Configuration
 
 See `.env.example` for all options.
 
 **Key Settings:**
-- `EVALUATE_RETRIEVAL`: Enable retrieval evaluation
-- `EVALUATE_GENERATION`: Enable generation evaluation
-- `EVALUATE_END_TO_END`: Enable end-to-end evaluation
 
-## ðŸ“Š Production Deployment
+- `LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+
+## Production Deployment
 
 ### CI/CD Integration
 
 ```yaml
-- name: Evaluate RAG Quality
-  run: toolkit-rag evaluate --config $CONFIG_FILE
+- name: Score RAG Retrieval
+  run: toolkit-rag score --queries queries.jsonl --retrieved retrieved.jsonl --k 5 --out report.json
+
+- name: Gate on Recall Regression
+  run: toolkit-rag compare --baseline baseline.json --candidate report.json --max-recall-regression-pct 2.0
 ```
 
 ### Monitoring
@@ -43,10 +44,6 @@ from toolkit_rag_quality.monitoring import get_health_status
 status = get_health_status()
 ```
 
-## ðŸ“ž Support
+## Support
 
 - Documentation: [README.md](README.md)
-- Support: <support-email>
-
-
-

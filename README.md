@@ -22,13 +22,13 @@ pytest -q
 Score retrieval results:
 
 ```bash
-toolkit-rag score --queries examples/queries.jsonl --retrieved examples/retrieved.jsonl --k 5 --out report.json
+toolkit-rag score --queries queries.jsonl --retrieved retrieved.jsonl --k 5 --out report.json
 ```
 
 Check overlap/leakage between two corpora:
 
 ```bash
-toolkit-rag overlap --a examples/corpus_a.jsonl --b examples/corpus_b.jsonl --out overlap.json
+toolkit-rag overlap --a corpus_a.jsonl --b corpus_b.jsonl --out overlap.json
 ```
 
 Compare candidate report to a baseline (CI gating):
