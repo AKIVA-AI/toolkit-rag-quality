@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
@@ -18,4 +18,3 @@ __all__ = [
     "compute_overlap",
     "score_retrieval",
 ]
-

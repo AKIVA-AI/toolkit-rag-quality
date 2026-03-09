@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -110,4 +110,3 @@ def test_cli_overlap(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None
     assert int(args.func(args)) == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["overlap_docs"] == 1
-

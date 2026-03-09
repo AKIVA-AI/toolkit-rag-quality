@@ -289,7 +289,9 @@ def build_parser() -> argparse.ArgumentParser:
     overlap.add_argument("--a", required=True, help="Corpus A JSONL (id, text)")
     overlap.add_argument("--b", required=True, help="Corpus B JSONL (id, text)")
     overlap.add_argument(
-        "--max-records", default="50000", help="Max records to process (default: 50000)",
+        "--max-records",
+        default="50000",
+        help="Max records to process (default: 50000)",
     )
     overlap.add_argument("--out", default="", help="Optional output report JSON path")
     _add_format_arg(overlap)
@@ -299,7 +301,8 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument("--baseline", required=True, help="Baseline report JSON file path")
     compare.add_argument("--candidate", required=True, help="Candidate report JSON file path")
     compare.add_argument(
-        "--max-recall-regression-pct", default="2.0",
+        "--max-recall-regression-pct",
+        default="2.0",
         help="Max recall regression %% (default: 2.0)",
     )
     _add_format_arg(compare)
@@ -309,7 +312,9 @@ def build_parser() -> argparse.ArgumentParser:
         "validate-report", help="Validate a RAG report JSON has the expected shape."
     )
     validate_report.add_argument(
-        "--report", required=True, help="Report JSON file path to validate",
+        "--report",
+        required=True,
+        help="Report JSON file path to validate",
     )
     _add_format_arg(validate_report)
     validate_report.set_defaults(func=_cmd_validate_report)

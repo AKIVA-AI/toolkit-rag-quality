@@ -1,4 +1,5 @@
 """Monitoring and health checks for RAG Quality Toolkit."""
+
 from __future__ import annotations
 
 import json

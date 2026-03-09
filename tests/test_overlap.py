@@ -42,7 +42,11 @@ def test_compute_overlap_single_doc_no_match() -> None:
 def test_compute_overlap_all_duplicates() -> None:
     """All docs in A appear in B."""
     a = [{"id": "a1", "text": "doc one"}, {"id": "a2", "text": "doc two"}]
-    b = [{"id": "b1", "text": "doc one"}, {"id": "b2", "text": "doc two"}, {"id": "b3", "text": "extra"}]
+    b = [
+        {"id": "b1", "text": "doc one"},
+        {"id": "b2", "text": "doc two"},
+        {"id": "b3", "text": "extra"},
+    ]
     out = compute_overlap(a=a, b=b, max_records=100)
     assert out["overlap_docs"] == 2
     assert out["overlap_rate"] == 1.0

@@ -1,4 +1,4 @@
-﻿"""Tests for rag-quality-toolkit enhancements."""
+"""Tests for rag-quality-toolkit enhancements."""
 
 from __future__ import annotations
 
@@ -160,11 +160,15 @@ def test_cli_score_queries_not_found(tmp_path: Path) -> None:
     retrieved_file = tmp_path / "retrieved.jsonl"
     retrieved_file.write_text('{"id": "q1", "retrieved_ids": []}\n', encoding="utf-8")
 
-    exit_code = main([
-        "score",
-        "--queries", "/nonexistent.jsonl",
-        "--retrieved", str(retrieved_file),
-    ])
+    exit_code = main(
+        [
+            "score",
+            "--queries",
+            "/nonexistent.jsonl",
+            "--retrieved",
+            str(retrieved_file),
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -174,11 +178,15 @@ def test_cli_score_retrieved_not_found(tmp_path: Path) -> None:
     queries_file = tmp_path / "queries.jsonl"
     queries_file.write_text('{"id": "q1", "relevant_ids": []}\n', encoding="utf-8")
 
-    exit_code = main([
-        "score",
-        "--queries", str(queries_file),
-        "--retrieved", "/nonexistent.jsonl",
-    ])
+    exit_code = main(
+        [
+            "score",
+            "--queries",
+            str(queries_file),
+            "--retrieved",
+            "/nonexistent.jsonl",
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -193,11 +201,15 @@ def test_cli_overlap_corpus_a_not_found(tmp_path: Path) -> None:
     b_file = tmp_path / "corpus_b.jsonl"
     b_file.write_text('{"id": "1", "text": "test"}\n', encoding="utf-8")
 
-    exit_code = main([
-        "overlap",
-        "--a", "/nonexistent.jsonl",
-        "--b", str(b_file),
-    ])
+    exit_code = main(
+        [
+            "overlap",
+            "--a",
+            "/nonexistent.jsonl",
+            "--b",
+            str(b_file),
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -207,11 +219,15 @@ def test_cli_overlap_corpus_b_not_found(tmp_path: Path) -> None:
     a_file = tmp_path / "corpus_a.jsonl"
     a_file.write_text('{"id": "1", "text": "test"}\n', encoding="utf-8")
 
-    exit_code = main([
-        "overlap",
-        "--a", str(a_file),
-        "--b", "/nonexistent.jsonl",
-    ])
+    exit_code = main(
+        [
+            "overlap",
+            "--a",
+            str(a_file),
+            "--b",
+            "/nonexistent.jsonl",
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -226,11 +242,15 @@ def test_cli_compare_baseline_not_found(tmp_path: Path) -> None:
     candidate = tmp_path / "candidate.json"
     candidate.write_text('{"summary": {}, "per_query": []}', encoding="utf-8")
 
-    exit_code = main([
-        "compare",
-        "--baseline", "/nonexistent.json",
-        "--candidate", str(candidate),
-    ])
+    exit_code = main(
+        [
+            "compare",
+            "--baseline",
+            "/nonexistent.json",
+            "--candidate",
+            str(candidate),
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -240,11 +260,15 @@ def test_cli_compare_candidate_not_found(tmp_path: Path) -> None:
     baseline = tmp_path / "baseline.json"
     baseline.write_text('{"summary": {}, "per_query": []}', encoding="utf-8")
 
-    exit_code = main([
-        "compare",
-        "--baseline", str(baseline),
-        "--candidate", "/nonexistent.json",
-    ])
+    exit_code = main(
+        [
+            "compare",
+            "--baseline",
+            str(baseline),
+            "--candidate",
+            "/nonexistent.json",
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -256,10 +280,13 @@ def test_cli_compare_candidate_not_found(tmp_path: Path) -> None:
 
 def test_cli_validate_report_not_found() -> None:
     """Test validate fails when report doesn't exist."""
-    exit_code = main([
-        "validate-report",
-        "--report", "/nonexistent.json",
-    ])
+    exit_code = main(
+        [
+            "validate-report",
+            "--report",
+            "/nonexistent.json",
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -269,10 +296,13 @@ def test_cli_validate_report_invalid_json(tmp_path: Path) -> None:
     report = tmp_path / "report.json"
     report.write_text("not valid json", encoding="utf-8")
 
-    exit_code = main([
-        "validate-report",
-        "--report", str(report),
-    ])
+    exit_code = main(
+        [
+            "validate-report",
+            "--report",
+            str(report),
+        ]
+    )
 
     assert exit_code == EXIT_CLI_ERROR
 
@@ -286,16 +316,20 @@ def test_cli_verbose_flag(tmp_path: Path, caplog) -> None:
     """Test --verbose flag enables debug logging."""
     queries = tmp_path / "queries.jsonl"
     queries.write_text('{"id": "q1", "relevant_ids": ["d1"]}\n', encoding="utf-8")
-    
+
     retrieved = tmp_path / "retrieved.jsonl"
     retrieved.write_text('{"id": "q1", "retrieved_ids": ["d1"]}\n', encoding="utf-8")
 
-    exit_code = main([
-        "--verbose",
-        "score",
-        "--queries", str(queries),
-        "--retrieved", str(retrieved),
-    ])
+    exit_code = main(
+        [
+            "--verbose",
+            "score",
+            "--queries",
+            str(queries),
+            "--retrieved",
+            str(retrieved),
+        ]
+    )
 
     assert exit_code == EXIT_SUCCESS
 
@@ -309,4 +343,3 @@ def test_write_json_creates_parent_directory(tmp_path: Path) -> None:
 
     assert file_path.exists()
     assert json.loads(file_path.read_text()) == data
-

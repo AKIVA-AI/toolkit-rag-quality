@@ -1,4 +1,5 @@
 """Tests for monitoring module."""
+
 from __future__ import annotations
 
 import json

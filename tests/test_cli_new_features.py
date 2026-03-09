@@ -1,4 +1,5 @@
 """Tests for new CLI features: --format, --log-format, health subcommand."""
+
 from __future__ import annotations
 
 import json
@@ -8,9 +9,9 @@ import pytest
 
 from toolkit_rag_quality.cli import (
     EXIT_SUCCESS,
-    _JsonLogFormatter,
     _format_output,
     _format_table,
+    _JsonLogFormatter,
     build_parser,
     main,
 )
@@ -39,12 +40,17 @@ def test_cli_score_table_format(tmp_path: Path, capsys: pytest.CaptureFixture[st
     queries.write_text('{"id": "q1", "relevant_ids": ["d1"]}\n', encoding="utf-8")
     retrieved.write_text('{"id": "q1", "retrieved_ids": ["d1"]}\n', encoding="utf-8")
 
-    exit_code = main([
-        "score",
-        "--queries", str(queries),
-        "--retrieved", str(retrieved),
-        "--format", "table",
-    ])
+    exit_code = main(
+        [
+            "score",
+            "--queries",
+            str(queries),
+            "--retrieved",
+            str(retrieved),
+            "--format",
+            "table",
+        ]
+    )
     assert exit_code == EXIT_SUCCESS
     output = capsys.readouterr().out
     # Table output should not be valid JSON
@@ -59,12 +65,17 @@ def test_cli_score_json_format(tmp_path: Path, capsys: pytest.CaptureFixture[str
     queries.write_text('{"id": "q1", "relevant_ids": ["d1"]}\n', encoding="utf-8")
     retrieved.write_text('{"id": "q1", "retrieved_ids": ["d1"]}\n', encoding="utf-8")
 
-    exit_code = main([
-        "score",
-        "--queries", str(queries),
-        "--retrieved", str(retrieved),
-        "--format", "json",
-    ])
+    exit_code = main(
+        [
+            "score",
+            "--queries",
+            str(queries),
+            "--retrieved",
+            str(retrieved),
+            "--format",
+            "json",
+        ]
+    )
     assert exit_code == EXIT_SUCCESS
     output = json.loads(capsys.readouterr().out)
     assert "summary" in output
@@ -77,12 +88,17 @@ def test_cli_log_format_json_flag(tmp_path: Path, capsys: pytest.CaptureFixture[
     queries.write_text('{"id": "q1", "relevant_ids": ["d1"]}\n', encoding="utf-8")
     retrieved.write_text('{"id": "q1", "retrieved_ids": ["d1"]}\n', encoding="utf-8")
 
-    exit_code = main([
-        "--log-format", "json",
-        "score",
-        "--queries", str(queries),
-        "--retrieved", str(retrieved),
-    ])
+    exit_code = main(
+        [
+            "--log-format",
+            "json",
+            "score",
+            "--queries",
+            str(queries),
+            "--retrieved",
+            str(retrieved),
+        ]
+    )
     assert exit_code == EXIT_SUCCESS
 
 
@@ -122,8 +138,13 @@ def test_json_log_formatter() -> None:
 
     formatter = _JsonLogFormatter(datefmt="%Y-%m-%dT%H:%M:%S")
     record = logging.LogRecord(
-        name="test", level=logging.INFO, pathname="", lineno=0,
-        msg="test message", args=(), exc_info=None,
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="test message",
+        args=(),
+        exc_info=None,
     )
     output = formatter.format(record)
     parsed = json.loads(output)
@@ -137,15 +158,31 @@ def test_build_parser_has_format_on_all_subcommands() -> None:
     for cmd in ["score", "overlap", "compare", "validate-report", "health"]:
         # Should not raise
         if cmd == "score":
-            args = parser.parse_args([
-                cmd, "--queries", "q.jsonl", "--retrieved", "r.jsonl", "--format", "table",
-            ])
+            args = parser.parse_args(
+                [
+                    cmd,
+                    "--queries",
+                    "q.jsonl",
+                    "--retrieved",
+                    "r.jsonl",
+                    "--format",
+                    "table",
+                ]
+            )
         elif cmd == "overlap":
             args = parser.parse_args([cmd, "--a", "a.jsonl", "--b", "b.jsonl", "--format", "table"])
         elif cmd == "compare":
-            args = parser.parse_args([
-                cmd, "--baseline", "b.json", "--candidate", "c.json", "--format", "table",
-            ])
+            args = parser.parse_args(
+                [
+                    cmd,
+                    "--baseline",
+                    "b.json",
+                    "--candidate",
+                    "c.json",
+                    "--format",
+                    "table",
+                ]
+            )
         elif cmd == "validate-report":
             args = parser.parse_args([cmd, "--report", "r.json", "--format", "table"])
         elif cmd == "health":
