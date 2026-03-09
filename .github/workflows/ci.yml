@@ -35,9 +35,22 @@ jobs:
     - run: pip install -e ".[dev]"
     - run: ruff check .
 
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - run: pip install bandit pip-audit
+    - name: Run bandit security scan
+      run: bandit -r src/ -c pyproject.toml
+    - name: Run pip-audit dependency scan
+      run: pip install -e ".[dev]" && pip-audit
+
   build:
     runs-on: ubuntu-latest
-    needs: [test, lint]
+    needs: [test, lint, security]
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5

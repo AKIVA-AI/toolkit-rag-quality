@@ -50,7 +50,7 @@ omit = ["*/toolkit_rag_quality/__main__.py"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-fail_under = 60
+fail_under = 70
 
 [tool.ruff]
 line-length = 100
@@ -61,6 +61,10 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["toolkit_rag_quality"]
+
+[tool.bandit]
+targets = ["src"]
+exclude_dirs = ["tests"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
