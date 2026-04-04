@@ -6,6 +6,7 @@ Three-tier hierarchy (mirrors Akiva platform pattern):
   Level 1 -- Toolkit config (pyproject.toml / config file)
   Level 2 -- CLI overrides (argv flags)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -27,13 +28,13 @@ class ToolkitConfigContract:
     version: str = "0.1.0"
 
     # -- Runtime behaviour -----------------------------------------------------
-    log_format: str = "json"          # 'json' | 'text'
+    log_format: str = "json"  # 'json' | 'text'
     structured_logging: bool = True
-    output_format: str = "json"       # 'json' | 'table'
+    output_format: str = "json"  # 'json' | 'table'
 
     # -- Retrieval defaults ----------------------------------------------------
-    top_k: int = 10                   # default retrieval depth
-    overlap_threshold: float = 0.8    # Jaccard overlap warning threshold
+    top_k: int = 10  # default retrieval depth
+    overlap_threshold: float = 0.8  # Jaccard overlap warning threshold
 
     # -- Extension -------------------------------------------------------------
     extra: dict[str, Any] = field(default_factory=dict)

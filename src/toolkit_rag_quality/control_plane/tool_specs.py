@@ -7,6 +7,7 @@ to ToolSpec contracts with appropriate permission scope and approval policy.
 All commands are READ_ONLY + AUTO -- this toolkit reads retrieval result files
 and corpus data, then produces quality metrics; it never modifies external state.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -120,8 +121,7 @@ TOOLKIT_TOOL_SPECS: dict[str, ToolkitCommandSpec] = {
         spec=_make_spec(
             name="validate_report",
             description=(
-                "Validate a RAG quality report JSON file against the expected schema. "
-                "Read-only."
+                "Validate a RAG quality report JSON file against the expected schema. Read-only."
             ),
             input_schema={
                 "type": "object",
