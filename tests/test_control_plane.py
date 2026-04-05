@@ -225,3 +225,226 @@ class TestGetToolSpec:
 
     def test_returns_none_for_empty_string(self) -> None:
         assert get_tool_spec("") is None
+
+
+# -- contracts: additional coverage -------------------------------------------
+
+
+class TestScopeAllows:
+    """Thorough coverage of AuthorityBoundary.scope_allows()."""
+
+    def test_read_only_satisfies_read_only(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.READ_ONLY, approval=ApprovalPolicy.AUTO)
+        assert b.scope_allows(PermissionScope.READ_ONLY)
+
+    def test_read_only_does_not_satisfy_workspace_write(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.READ_ONLY, approval=ApprovalPolicy.AUTO)
+        assert not b.scope_allows(PermissionScope.WORKSPACE_WRITE)
+
+    def test_read_only_does_not_satisfy_full_access(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.READ_ONLY, approval=ApprovalPolicy.AUTO)
+        assert not b.scope_allows(PermissionScope.FULL_ACCESS)
+
+    def test_workspace_write_satisfies_read_only(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.WORKSPACE_WRITE, approval=ApprovalPolicy.AUTO)
+        assert b.scope_allows(PermissionScope.READ_ONLY)
+
+    def test_workspace_write_satisfies_workspace_write(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.WORKSPACE_WRITE, approval=ApprovalPolicy.AUTO)
+        assert b.scope_allows(PermissionScope.WORKSPACE_WRITE)
+
+    def test_workspace_write_does_not_satisfy_full_access(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.WORKSPACE_WRITE, approval=ApprovalPolicy.AUTO)
+        assert not b.scope_allows(PermissionScope.FULL_ACCESS)
+
+    def test_full_access_satisfies_all(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.FULL_ACCESS, approval=ApprovalPolicy.AUTO)
+        assert b.scope_allows(PermissionScope.READ_ONLY)
+        assert b.scope_allows(PermissionScope.WORKSPACE_WRITE)
+        assert b.scope_allows(PermissionScope.FULL_ACCESS)
+
+
+class TestAuthorityBoundaryRepr:
+    """Coverage of AuthorityBoundary.__repr__()."""
+
+    def test_repr_format_no_sandbox(self) -> None:
+        b = AuthorityBoundary(scope=PermissionScope.READ_ONLY, approval=ApprovalPolicy.AUTO)
+        r = repr(b)
+        assert r == "AuthorityBoundary(scope='read_only', approval='auto', sandbox=None)"
+
+    def test_repr_format_with_sandbox(self) -> None:
+        sandbox = {"isolation": "process"}
+        b = AuthorityBoundary(
+            scope=PermissionScope.FULL_ACCESS,
+            approval=ApprovalPolicy.REQUIRE_APPROVAL,
+            sandbox=sandbox,
+        )
+        r = repr(b)
+        assert "scope='full_access'" in r
+        assert "approval='require_approval'" in r
+        assert "sandbox={'isolation': 'process'}" in r
+
+    def test_repr_format_denied(self) -> None:
+        b = AuthorityBoundary(
+            scope=PermissionScope.WORKSPACE_WRITE,
+            approval=ApprovalPolicy.DENY,
+        )
+        r = repr(b)
+        assert "scope='workspace_write'" in r
+        assert "approval='deny'" in r
+
+
+class TestAuthorityBoundarySandbox:
+    """Coverage of sandbox parameter in AuthorityBoundary.__init__()."""
+
+    def test_sandbox_set_explicitly(self) -> None:
+        sandbox = {"isolation": "container", "timeout": 30}
+        b = AuthorityBoundary(
+            scope=PermissionScope.FULL_ACCESS,
+            approval=ApprovalPolicy.AUTO,
+            sandbox=sandbox,
+        )
+        assert b.sandbox == {"isolation": "container", "timeout": 30}
+
+    def test_sandbox_empty_dict(self) -> None:
+        b = AuthorityBoundary(
+            scope=PermissionScope.READ_ONLY,
+            approval=ApprovalPolicy.AUTO,
+            sandbox={},
+        )
+        assert b.sandbox == {}
+
+
+class TestToolSpecFullConstruction:
+    """Coverage of ToolSpec with all optional params."""
+
+    def test_all_optional_params(self) -> None:
+        input_s = {"type": "object", "required": ["query"]}
+        output_s = {"type": "object", "properties": {"score": {"type": "number"}}}
+        sandbox_req = {"isolation": "process"}
+        aliases = ["s", "sc"]
+        spec = ToolSpec(
+            name="score",
+            description="Score RAG results",
+            category="evaluation",
+            version="1.0.0",
+            owner="toolkit-rag-quality",
+            permission_scope=PermissionScope.READ_ONLY,
+            input_schema=input_s,
+            output_schema=output_s,
+            sandbox_requirement=sandbox_req,
+            aliases=aliases,
+        )
+        assert spec.name == "score"
+        assert spec.description == "Score RAG results"
+        assert spec.category == "evaluation"
+        assert spec.version == "1.0.0"
+        assert spec.owner == "toolkit-rag-quality"
+        assert spec.permission_scope == PermissionScope.READ_ONLY
+        assert spec.input_schema == input_s
+        assert spec.output_schema == output_s
+        assert spec.sandbox_requirement == sandbox_req
+        assert spec.aliases == ["s", "sc"]
+
+    def test_optional_params_default_none(self) -> None:
+        spec = ToolSpec(
+            name="test",
+            description="d",
+            category="c",
+            version="0.0.1",
+            owner="o",
+            permission_scope=PermissionScope.WORKSPACE_WRITE,
+        )
+        assert spec.output_schema is None
+        assert spec.sandbox_requirement is None
+        assert spec.aliases is None
+
+
+class TestToolSpecReprFormat:
+    """Coverage of ToolSpec.__repr__() format string."""
+
+    def test_repr_exact_format(self) -> None:
+        spec = ToolSpec(
+            name="overlap",
+            description="d",
+            category="c",
+            version="0.1.0",
+            owner="o",
+            permission_scope=PermissionScope.WORKSPACE_WRITE,
+        )
+        r = repr(spec)
+        assert r == "ToolSpec(name='overlap', scope='workspace_write')"
+
+    def test_repr_full_access(self) -> None:
+        spec = ToolSpec(
+            name="admin-tool",
+            description="d",
+            category="c",
+            version="0.1.0",
+            owner="o",
+            permission_scope=PermissionScope.FULL_ACCESS,
+        )
+        r = repr(spec)
+        assert r == "ToolSpec(name='admin-tool', scope='full_access')"
+
+
+class TestFrameworkFlags:
+    """Coverage of _HAS_EXECUTION_CONTRACTS and _HAS_POLICY_RUNTIME flags."""
+
+    def test_has_execution_contracts_is_bool(self) -> None:
+        assert isinstance(_HAS_EXECUTION_CONTRACTS, bool)
+
+    def test_has_policy_runtime_is_bool(self) -> None:
+        from toolkit_rag_quality.control_plane.contracts import _HAS_POLICY_RUNTIME
+        assert isinstance(_HAS_POLICY_RUNTIME, bool)
+
+    def test_flags_consistent_with_imports(self) -> None:
+        """Flags reflect whether the framework packages are importable."""
+        from toolkit_rag_quality.control_plane.contracts import _HAS_POLICY_RUNTIME
+        # Verify flags match actual importability
+        try:
+            __import__("akiva_execution_contracts")
+            expect_ec = True
+        except ImportError:
+            expect_ec = False
+        try:
+            __import__("akiva_policy_runtime")
+            expect_pr = True
+        except ImportError:
+            expect_pr = False
+        assert _HAS_EXECUTION_CONTRACTS is expect_ec
+        assert _HAS_POLICY_RUNTIME is expect_pr
+
+
+class TestPermissionScopeStringBehavior:
+    """PermissionScope is a str enum -- verify string behavior."""
+
+    def test_enum_is_string(self) -> None:
+        assert isinstance(PermissionScope.READ_ONLY, str)
+        assert isinstance(PermissionScope.WORKSPACE_WRITE, str)
+        assert isinstance(PermissionScope.FULL_ACCESS, str)
+
+    def test_string_equality(self) -> None:
+        assert PermissionScope.READ_ONLY == "read_only"
+        assert PermissionScope.WORKSPACE_WRITE == "workspace_write"
+        assert PermissionScope.FULL_ACCESS == "full_access"
+
+    def test_enum_member_count(self) -> None:
+        assert len(PermissionScope) == 3
+
+
+class TestApprovalPolicyStringBehavior:
+    """ApprovalPolicy is a str enum -- verify string behavior."""
+
+    def test_enum_is_string(self) -> None:
+        assert isinstance(ApprovalPolicy.AUTO, str)
+        assert isinstance(ApprovalPolicy.REQUIRE_APPROVAL, str)
+        assert isinstance(ApprovalPolicy.DENY, str)
+
+    def test_string_equality(self) -> None:
+        assert ApprovalPolicy.AUTO == "auto"
+        assert ApprovalPolicy.REQUIRE_APPROVAL == "require_approval"
+        assert ApprovalPolicy.DENY == "deny"
+
+    def test_enum_member_count(self) -> None:
+        assert len(ApprovalPolicy) == 3

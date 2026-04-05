@@ -20,9 +20,7 @@ from .contracts import (
     ApprovalPolicy,
     AuthorityBoundary,
     PermissionScope,
-)
-from .contracts import (
-    ToolSpec as CPToolSpec,
+    ToolSpec,
 )
 from .tool_specs import (
     TOOLKIT_TOOL_SPECS,
@@ -42,6 +40,6 @@ __all__ = [
     "PermissionScope",
     "ApprovalPolicy",
     "AuthorityBoundary",
-    "CPToolSpec",
+    "ToolSpec",
     "_HAS_EXECUTION_CONTRACTS",
 ]

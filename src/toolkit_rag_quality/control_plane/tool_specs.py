@@ -35,7 +35,7 @@ def _make_spec(
         name=name,
         description=description,
         category="tool",
-        version="0.1.0",
+        version="0.2.0",
         owner="toolkit-rag-quality",
         permission_scope=PermissionScope.READ_ONLY,
         input_schema=input_schema,

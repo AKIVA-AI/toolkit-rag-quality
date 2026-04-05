@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toolkit-rag-quality-toolkit"
-version = "0.1.0"
+version = "0.2.0"
 description = "RAG Quality Toolkit: deterministic retrieval metrics and corpus overlap QA."
 readme = "README.md"
 requires-python = ">=3.10"
