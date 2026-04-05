@@ -73,7 +73,7 @@ jobs:
     - name: Install CycloneDX
       run: pip install cyclonedx-bom
     - name: Generate SBOM
-      run: cyclonedx-py environment --output sbom.json --output-format json
+      run: cyclonedx-py environment -o sbom.json --of json
     - uses: actions/upload-artifact@v4
       with:
         name: sbom
