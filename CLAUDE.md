@@ -1,7 +1,7 @@
 # RAG Quality — Deterministic retrieval metrics (recall@k, MRR, NDCG, MAP) without model calls
 
 **Archetype:** 9 — Developer Tool / CLI Utility
-**Standards:** Akiva Build Standard v2.14
+**Standards:** See `akiva-enterprise-products/CLAUDE.md` for current Akiva Build Standard version and full standards reference.
 **Ontology ID:** TK-04
 **Version:** 0.2.0
 
