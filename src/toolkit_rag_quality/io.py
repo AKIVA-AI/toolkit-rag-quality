@@ -50,7 +50,7 @@ def validate_path_for_write(path: Path) -> Path:
         Resolved absolute path
 
     Raises:
-        ValueError: If path is a directory
+        ValueError: If path is a directory or attempts path traversal
     """
     resolved = path.resolve()
 
@@ -60,6 +60,10 @@ def validate_path_for_write(path: Path) -> Path:
     parent = resolved.parent
     if parent.exists() and not parent.is_dir():
         raise ValueError(f"Parent path is not a directory: {parent}")
+
+    # Prevent path traversal via '..' in the original path
+    if ".." in path.parts:
+        raise ValueError(f"Path traversal detected: {path}")
 
     return resolved
 
