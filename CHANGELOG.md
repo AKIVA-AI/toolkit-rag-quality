@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 First stable release: retrieval regression testing in CI. Highlights: trec_eval-equal metrics with graded relevance and TREC/BEIR formats, a regression gate with per-query diffs, paired significance tests and per-metric budgets, a GitHub Action, leakage and near-duplicate checks, retriever adapters, and in-toto report envelopes. See the breaking changes under **Changed** and **Removed**.
 
+First release on PyPI (published 2026-10-02): `pip install toolkit-rag-quality`.
+
 ### Release and project files
 
 - CI now runs `pip-audit` with every optional extra installed (`langchain`, `llamaindex`), not only `dev`. One advisory is ignored with a documented justification and a re-check date: CVE-2026-81726 in `nltk`, which arrives only through `llama-index-core` and has no fixed release yet. This package never imports `nltk`. See "Known advisories" in `SECURITY.md`.

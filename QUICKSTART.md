@@ -1,11 +1,9 @@
 # RAG Quality Toolkit: quick start
 
-## Install from source
+## Install
 
 ```bash
-git clone https://github.com/AKIVA-AI/toolkit-rag-quality.git
-cd toolkit-rag-quality
-pip install -e ".[dev]"
+pip install toolkit-rag-quality
 toolkit-rag --version
 ```
 
@@ -26,6 +24,8 @@ toolkit-rag validate-report --report report.json
 ```
 
 ## Docker
+
+From a clone of the repository:
 
 ```bash
 docker-compose up -d

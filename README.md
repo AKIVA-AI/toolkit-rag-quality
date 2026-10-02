@@ -1,5 +1,7 @@
 # Toolkit RAG Quality
 
+[![PyPI](https://img.shields.io/pypi/v/toolkit-rag-quality.svg)](https://pypi.org/project/toolkit-rag-quality/)
+[![Python versions](https://img.shields.io/pypi/pyversions/toolkit-rag-quality.svg)](https://pypi.org/project/toolkit-rag-quality/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 **Retrieval regression testing in CI.** `toolkit-rag` scores a retriever's ranked results with metrics that match trec_eval exactly, tells you which queries got worse and whether the change is statistically significant, fails the build when it regresses beyond budget, and checks that eval queries and answers have not leaked into the corpus. It is deterministic, makes no model calls and has no runtime dependencies (LangChain and LlamaIndex adapters are optional extras).
@@ -28,22 +30,25 @@ It complements, rather than replaces, two good tools: [Ragas](https://docs.ragas
 
 ## Install
 
-The package is not published on PyPI yet. Install from source:
+Python 3.10 or newer is required.
+
+```bash
+pip install toolkit-rag-quality
+pip install "toolkit-rag-quality[langchain]"     # LangChain retriever adapter
+pip install "toolkit-rag-quality[llamaindex]"    # LlamaIndex retriever adapter
+toolkit-rag --version
+```
+
+To work on the code, see [Development](#development).
+
+## 5-minute example: BEIR SciFact
+
+This compares two configurations of a small BM25 retriever on the [BEIR](https://github.com/beir-cellar/beir) SciFact test set (300 queries, 5,183 abstracts, 2.8 MB download). The retriever is `examples/bm25.py`, a pure-Python BM25 kept small for the example. The candidate drops document titles from the index, a plausible-looking change. Run it from the root of a clone of this repository, so that `examples.bm25` can be imported:
 
 ```bash
 git clone https://github.com/AKIVA-AI/toolkit-rag-quality.git
 cd toolkit-rag-quality
-pip install .            # or: pip install -e ".[dev]" for development
-toolkit-rag --version
-```
 
-Python 3.10 or newer is required. Optional extras: `.[langchain]`, `.[llamaindex]`.
-
-## 5-minute example: BEIR SciFact
-
-This compares two configurations of a small BM25 retriever on the [BEIR](https://github.com/beir-cellar/beir) SciFact test set (300 queries, 5,183 abstracts, 2.8 MB download). The retriever is `examples/bm25.py`, a pure-Python BM25 kept small for the example. The candidate drops document titles from the index, a plausible-looking change. Run from the repository root:
-
-```bash
 curl -LO https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip
 unzip -q scifact.zip
 
@@ -108,7 +113,7 @@ What the gate checks:
 Produce a run file from your own retriever (LangChain, LlamaIndex, or any Python callable):
 
 ```bash
-pip install ".[langchain]"      # or ".[llamaindex]"; a plain callable needs neither
+pip install "toolkit-rag-quality[langchain]"   # or "toolkit-rag-quality[llamaindex]"; a plain callable needs neither
 toolkit-rag run-retriever --retriever my_pipeline:build_retriever() \
   --queries queries.jsonl --qrels qrels.trec --k 100 --out run.trec --tag my-retriever
 ```
@@ -161,7 +166,7 @@ Every command prints its report as JSON by default; `--format table` or `--forma
 `action.yml` at the repository root is a composite action that runs the regression gate and writes the Markdown summary to the job's step summary. Produce the two score reports in earlier steps (for example, the baseline from `main` and the candidate from the pull request), then:
 
 ```yaml
-- uses: AKIVA-AI/toolkit-rag-quality@<commit-sha>   # pin a commit until a release tag exists
+- uses: AKIVA-AI/toolkit-rag-quality@v1.0.0
   with:
     baseline: reports/baseline.json
     candidate: reports/candidate.json
@@ -300,7 +305,11 @@ toolkit-mlsbom sign-file report.json     # then: toolkit-mlsbom verify-file repo
 
 ## Development
 
+Install from source in editable mode, with the test, lint and type-check tools:
+
 ```bash
+git clone https://github.com/AKIVA-AI/toolkit-rag-quality.git
+cd toolkit-rag-quality
 pip install -e ".[dev]"            # add ,langchain,llamaindex to run the adapter tests
 pytest -q
 ruff check .
