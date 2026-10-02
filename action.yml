@@ -1,0 +1,127 @@
+name: RAG retrieval regression gate
+description: >-
+  Fail a pull request when retrieval quality regresses: compares a candidate
+  toolkit-rag score report against a baseline with per-metric budgets,
+  per-query diffs and optional paired significance tests.
+author: AKIVA AI, LLC
+branding:
+  icon: bar-chart-2
+  color: blue
+
+inputs:
+  baseline:
+    description: Baseline score report (output of `toolkit-rag score --out`).
+    required: true
+  candidate:
+    description: Candidate score report to gate.
+    required: true
+  max-recall-regression-pct:
+    description: Allowed relative drop in recall@k, in percent of the baseline.
+    required: false
+    default: "2.0"
+  max-regression-pct:
+    description: "Allowed relative drop for the other metrics (default: the recall budget)."
+    required: false
+    default: ""
+  budgets:
+    description: >-
+      Per-metric budgets, one METRIC=PCT per line (for example `ndcg=1` or
+      `hit_rate=off`). Overrides the two budgets above for those metrics.
+    required: false
+    default: ""
+  alpha:
+    description: >-
+      Significance level. When set, a metric over budget fails only if its
+      drop is significant (p < alpha). Empty: any over-budget drop fails.
+    required: false
+    default: ""
+  test:
+    description: Paired significance test, `permutation` or `t-test`.
+    required: false
+    default: permutation
+  report:
+    description: Where to write the compare report (JSON envelope).
+    required: false
+    default: rag-compare.json
+  fail-on-regression:
+    description: >-
+      Fail the step when the gate does not pass. GitHub drops a composite
+      action's outputs when the action fails, so set this to "false" to read
+      the `verdict` output and decide in a later step.
+    required: false
+    default: "true"
+  python-version:
+    description: Python version to install. Set to an empty string to use the runner's Python.
+    required: false
+    default: "3.12"
+
+outputs:
+  verdict:
+    description: "`pass`, `fail` or `error`."
+    value: ${{ steps.gate.outputs.verdict }}
+  exit-code:
+    description: "Exit code of `toolkit-rag compare`: 0 pass, 4 fail, 2 or 3 error."
+    value: ${{ steps.gate.outputs.exit-code }}
+  report:
+    description: Path of the compare report.
+    value: ${{ steps.gate.outputs.report }}
+
+runs:
+  using: composite
+  steps:
+    - if: ${{ inputs.python-version != '' }}
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install toolkit-rag-quality
+      shell: bash
+      run: python -m pip install --disable-pip-version-check -q "$ACTION_PATH"
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+    - name: Compare candidate against baseline
+      id: gate
+      shell: bash
+      env:
+        BASELINE: ${{ inputs.baseline }}
+        CANDIDATE: ${{ inputs.candidate }}
+        MAX_RECALL: ${{ inputs.max-recall-regression-pct }}
+        MAX_OTHER: ${{ inputs.max-regression-pct }}
+        BUDGETS: ${{ inputs.budgets }}
+        ALPHA: ${{ inputs.alpha }}
+        TEST: ${{ inputs.test }}
+        REPORT: ${{ inputs.report }}
+      run: |
+        # GitHub runs this with bash -e; the gate exit code is handled below.
+        set +e -uo pipefail
+        args=(compare --baseline "$BASELINE" --candidate "$CANDIDATE"
+              --max-recall-regression-pct "$MAX_RECALL" --test "$TEST"
+              --out "$REPORT" --format markdown)
+        if [ -n "$MAX_OTHER" ]; then args+=(--max-regression-pct "$MAX_OTHER"); fi
+        if [ -n "$ALPHA" ]; then args+=(--alpha "$ALPHA"); fi
+        while IFS= read -r line; do
+          line="${line//[[:space:]]/}"
+          if [ -n "$line" ]; then args+=(--budget "$line"); fi
+        done <<< "$BUDGETS"
+        summary="$(mktemp)"
+        toolkit-rag "${args[@]}" > "$summary"
+        code=$?
+        cat "$summary"
+        cat "$summary" >> "$GITHUB_STEP_SUMMARY"
+        verdict=error
+        if [ -f "$REPORT" ]; then
+          verdict="$(python -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["predicate"]["verdict"])' "$REPORT" || echo error)"
+        fi
+        {
+          echo "verdict=$verdict"
+          echo "exit-code=$code"
+          echo "report=$REPORT"
+        } >> "$GITHUB_OUTPUT"
+    - name: Fail when the gate does not pass
+      if: ${{ inputs.fail-on-regression == 'true' && steps.gate.outputs.exit-code != '0' }}
+      shell: bash
+      env:
+        CODE: ${{ steps.gate.outputs.exit-code }}
+        VERDICT: ${{ steps.gate.outputs.verdict }}
+      run: |
+        echo "::error::RAG retrieval gate verdict: $VERDICT (exit $CODE)"
+        exit "$CODE"
