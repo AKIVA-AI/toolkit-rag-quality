@@ -2,15 +2,18 @@
 
 The toolkit is a command-line tool with no service component. "Deploying" it means installing it where your CI job runs.
 
-## Local installation (from source)
+## Installation
 
 ```bash
-pip install -e ".[dev]"
+pip install toolkit-rag-quality
 toolkit-rag --version
-pytest
 ```
 
+To work on the code, install from source as described in the README's Development section.
+
 ## Docker
+
+From a clone of the repository:
 
 ```bash
 docker-compose up -d
@@ -26,6 +29,9 @@ There are no environment variables or config files. All options are CLI flags; r
 ## CI integration
 
 ```yaml
+- name: Install
+  run: pip install toolkit-rag-quality
+
 - name: Score retrieval
   run: toolkit-rag score --queries queries.jsonl --retrieved retrieved.jsonl --k 5 --out report.json
 
